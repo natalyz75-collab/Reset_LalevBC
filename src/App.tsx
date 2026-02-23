@@ -156,7 +156,7 @@ export default function App() {
     }
   };
 
-  const downloadImage = async () => {
+  const shareAsImage = async () => {
     if (cardRef.current === null) return;
     
     try {
@@ -168,6 +168,29 @@ export default function App() {
           borderRadius: '0' // Ensure no weird corners in the image
         }
       });
+
+      // Convert dataUrl to a File object for sharing
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      const file = new File([blob], 'Reset_Lalev_Card.png', { type: 'image/png' });
+
+      // Try to use Web Share API if supported and can share files
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: BRAND_NAME,
+            text: `כרטיס הביקור של ${HEBREW_BRAND_NAME} - ${BRAND_NAME}`,
+          });
+          return;
+        } catch (shareErr) {
+          // If user cancelled share, don't fallback to download
+          if ((shareErr as Error).name === 'AbortError') return;
+          console.error('Share failed, falling back to download', shareErr);
+        }
+      }
+
+      // Fallback to download
       const link = document.createElement('a');
       link.download = `Reset_Lalev_Card.png`;
       link.href = dataUrl;
@@ -347,7 +370,7 @@ export default function App() {
               <div className="flex flex-col items-center gap-2">
                 <CircleIcon 
                   icon={ImageIcon} 
-                  onClick={downloadImage}
+                  onClick={shareAsImage}
                   color="bg-[#E6E6FA]"
                   iconColor="text-[#8B7BBF]"
                 />
