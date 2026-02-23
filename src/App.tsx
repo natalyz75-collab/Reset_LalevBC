@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Phone, 
   MessageCircle, 
@@ -19,11 +19,13 @@ import {
   ChevronUp,
   Award,
   Sparkles,
-  User
+  User,
+  Image as ImageIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { QRCodeSVG } from 'qrcode.react';
 import Markdown from 'react-markdown';
+import { toPng } from 'html-to-image';
 
 // --- Constants ---
 
@@ -128,6 +130,8 @@ export default function App() {
   const [showCertifications, setShowCertifications] = useState(false);
   const [showTreatments, setShowTreatments] = useState(false);
 
+  const cardRef = useRef<HTMLDivElement>(null);
+
   const handleCall = () => window.open(`tel:${PHONE}`, '_self');
   const handleWhatsApp = () => {
     const message = "היי אהובה 💛 תודה שכתבת לי. אני נטלי.\nלפני שנתחיל—איך את מרגישה עכשיו? מה הכי כבד לך בתקופה הזו?";
@@ -152,6 +156,28 @@ export default function App() {
     }
   };
 
+  const downloadImage = async () => {
+    if (cardRef.current === null) return;
+    
+    try {
+      const dataUrl = await toPng(cardRef.current, {
+        cacheBust: true,
+        backgroundColor: '#fff',
+        pixelRatio: 2,
+        style: {
+          borderRadius: '0' // Ensure no weird corners in the image
+        }
+      });
+      const link = document.createElement('a');
+      link.download = `Reset_Lalev_Card.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Could not generate image', err);
+      alert('מצטערים, חלה שגיאה ביצירת התמונה. נסי שוב מאוחר יותר.');
+    }
+  };
+
   const downloadVCard = () => {
     const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${HEBREW_BRAND_NAME}\nORG:${BRAND_NAME}\nTEL;TYPE=CELL:${PHONE}\nEMAIL:${EMAIL}\nURL:${WEBSITE}\nEND:VCARD`;
     const blob = new Blob([vcard], { type: 'text/vcard' });
@@ -167,7 +193,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#FFF9F9] text-stone-800 font-sans selection:bg-rose-100 flex flex-col items-center overflow-x-hidden" dir="rtl">
       {/* Main Container */}
-      <div className="w-full max-w-[450px] min-h-screen bg-white shadow-2xl relative flex flex-col">
+      <div ref={cardRef} className="w-full max-w-[450px] min-h-screen bg-white shadow-2xl relative flex flex-col">
         
         {/* Hero Section with Atmospheric Background */}
         <div className="relative h-64 w-full overflow-hidden">
@@ -317,6 +343,15 @@ export default function App() {
                   iconColor="text-[#8B7BBF]"
                 />
                 <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">הוספה</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <CircleIcon 
+                  icon={ImageIcon} 
+                  onClick={downloadImage}
+                  color="bg-[#E6E6FA]"
+                  iconColor="text-[#8B7BBF]"
+                />
+                <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">תמונה</span>
               </div>
             </div>
 
