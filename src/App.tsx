@@ -134,7 +134,7 @@ export default function App() {
 
   const handleCall = () => window.open(`tel:${PHONE}`, '_self');
   const handleWhatsApp = () => {
-    const message = "היי אהובה 💛 תודה שכתבת לי. אני נטלי.\nלפני שנתחיל—איך את מרגישה עכשיו? מה הכי כבד לך בתקופה הזו?";
+    const message = "היי נטלי, \nקראתי על שיטת RESET_LALEV והרגשתי שזה בדיוק מה שהלב שלי צריך עכשיו. \nאשמח לשמוע איך מתחילים את התהליך.";
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/972${PHONE.replace(/-/g, '').substring(1)}?text=${encodedMessage}`, '_blank');
   };
